@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520" fill="none" stroke="#f58232" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <title>Front elevation of a Jain temple</title>
+  <defs>
+    <g id="side-tower">
+      <path d="M191 354v-93c0-63 25-108 59-108s59 45 59 108v93"/>
+      <path d="M202 257h96M208 239h84M216 217h68M224 194h52M232 175h36"/>
+      <path d="M250 153v-34m-8 34c-2-12 1-24 8-34 7 10 10 22 8 34"/>
+      <path d="M250 119v-23l24 8-24 8"/>
+      <path d="M212 260c6-39 17-71 38-98 21 27 32 59 38 98M225 260c1-36 9-68 25-98 16 30 24 62 25 98M250 162v98"/>
+      <path d="M217 354v-67h66v67M228 354v-52q22-28 44 0v52M238 354v-46q12-17 24 0v46"/>
+    </g>
+    <g id="bay">
+      <path d="M0 0v124M72 0v124M7 124V31h58v93M16 124V49q20-29 40 0v75M23 124V54q13-20 26 0v70"/>
+      <path d="M0 13h72M5 23h62M9 31h54"/>
+      <path d="M4 13l8 10 8-10 8 10 8-10 8 10 8-10 8 10 8-10"/>
+    </g>
+  </defs>
+  <path d="M30 474h840M50 456h800v18M72 439h756v17"/>
+  <path d="M95 354h710v85H95zM82 344h736l-13 10H95zM105 332h690v12H105z"/>
+  <use href="#side-tower"/>
+  <use href="#side-tower" transform="translate(900 0) scale(-1 1)"/>
+  <path d="M327 332V217c0-100 51-176 123-176s123 76 123 176v115"/>
+  <path d="M340 220h220M348 197h204M360 169h180M375 139h150M393 107h114M414 78h72"/>
+  <path d="M450 41V13m-10 30c-1-11 2-22 10-30 8 8 11 19 10 30M450 13V3l31 10-31 9"/>
+  <path d="M347 219c9-72 42-132 103-169 61 37 94 97 103 169M370 219c5-67 31-122 80-169 49 47 75 102 80 169M400 219c1-62 18-117 50-169 32 52 49 107 50 169M450 50v169"/>
+  <path d="M379 208c8-29 25-47 49-55-10 25-8 43 7 55M521 208c-8-29-25-47-49-55 10 25 8 43-7 55"/>
+  <path d="M350 243h200v89H350zM337 231h226v12H337zM365 219h170v12H365z"/>
+  <path d="M380 231v-18h24v18m12 0v-30h28v30m12 0v-30h28v30m12 0v-18h24v18"/>
+  <path d="M345 332v-58h210v58M365 332v-38h170v38"/>
+  <path d="M373 332v-25q77-79 154 0v25M397 332v-28q53-58 106 0v28M424 332v-24q26-34 52 0v24"/>
+  <path d="M110 332v-58c0-33 20-58 47-58s47 25 47 58v58M696 332v-58c0-33 20-58 47-58s47 25 47 58v58"/>
+  <path d="M117 273h80M124 252h66M135 231h44M157 216v-28m-7 28c-1-9 1-18 7-28 6 10 8 19 7 28"/>
+  <path d="M703 273h80M710 252h66M721 231h44M743 216v-28m-7 28c-1-9 1-18 7-28 6 10 8 19 7 28"/>
+  <path d="M157 188v-17m586 17v-17"/>
+  <path d="M105 354v-51h104v51M691 354v-51h104v51"/>
+  <use href="#bay" transform="translate(113 315)"/>
+  <use href="#bay" transform="translate(213 315)"/>
+  <use href="#bay" transform="translate(307 315)"/>
+  <use href="#bay" transform="translate(521 315)"/>
+  <use href="#bay" transform="translate(615 315)"/>
+  <use href="#bay" transform="translate(715 315)"/>
+  <path d="M365 439h170M380 421h140M390 403h120M400 385h100"/>
+  <path d="M365 439l15-18h140l15 18M380 421l10-18h120l10 18M390 403l10-18h100l10 18"/>
+  <path d="M81 439h738"/>
+</svg>

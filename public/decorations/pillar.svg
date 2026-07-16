@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 600" fill="none" stroke="#f58232" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <title>Carved Jain temple pillar</title>
+  <path d="M44 20h132v14H44zM52 34h116v11H52zM60 45h100l-6 16H66z"/>
+  <path d="M66 61h88c-4 10-12 17-22 21H88c-10-4-18-11-22-21Z"/>
+  <path d="M70 61c3 15 8 25 18 35m62-35c-3 15-8 25-18 35M82 62c1 14 5 25 14 34m42-34c-1 14-5 25-14 34M95 62c-2 13 0 24 7 34m23-34c2 13 0 24-7 34M110 62v34"/>
+  <path d="M77 69c8 1 13 8 13 20M143 69c-8 1-13 8-13 20M99 69c7 5 8 13 3 23m19-23c-7 5-8 13-3 23"/>
+  <path d="M82 82h56l-6 20H88zM86 102h48v10H86zM80 112h60v12H80zM84 124h52v12H84z"/>
+  <path d="M88 136h44l5 269H83zM96 136l-3 269m31-269 3 269M110 136v269"/>
+  <path d="M91 218l5-5m-5 5 5 5m33-5-5-5m5 5-5 5M91 319l5-5m-5 5 5 5m33-5-5-5m5 5-5 5"/>
+  <circle cx="110" cy="220" r="2"/><circle cx="110" cy="320" r="2"/>
+  <path d="M80 405h60v13H80zM84 418h52v13H84zM78 431h64v13H78z"/>
+  <path d="M84 444h52c-2 13-8 23-17 33H101c-9-10-15-20-17-33Z"/>
+  <path d="M93 444c-1 14 3 25 12 33m22-33c1 14-3 25-12 33m-8-33-2 33m8-33 2 33"/>
+  <path d="M101 477h18l9 13H92zM84 490h52v12H84zM76 502h68v13H76zM68 515h84v14H68zM58 529h104v16H58z"/>
+  <path d="M72 502h76M78 515h64M69 529h82"/>
+  <path d="M55 545h110v16H55z"/>
+</svg>
