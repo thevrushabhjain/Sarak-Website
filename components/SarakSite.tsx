@@ -1770,9 +1770,9 @@ function PremiumPageHero({
   imageClassName?: string;
 }) {
   return (
-    <section className="relative overflow-hidden border-b border-[#dfa35f] bg-[#fff8ec] pt-[84px]">
+    <section className="relative mt-[84px] overflow-hidden border-b border-[#dfa35f] bg-[#fff8ec]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_30%,rgba(255,255,255,.95),rgba(255,247,234,.72)_35%,rgba(241,171,91,.18)_100%)]" />
-      <div className="absolute inset-0 z-0 top-[84px]">
+      <div className="absolute inset-0 z-0">
         <img
           src={image}
           alt={imageAlt}

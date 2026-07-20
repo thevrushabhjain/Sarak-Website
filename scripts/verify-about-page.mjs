@@ -110,7 +110,7 @@ const checks = [
   [!missionSource.includes("service.title === \"सेवा\"") && !missionSource.includes("lg:ml-auto"), "Seva row no longer uses custom offset classes"],
   [source.includes("mt-7 grid gap-1.5") && source.includes("py-3 text-base") && source.includes("mt-2 rounded-2xl"), "Mobile sidebar navigation spacing is compact"],
   [!activitiesSource.includes("<ContactStrip />"), "Activities page removes the We are listening section"],
-  [heroSource.includes("top-[84px]") && !heroSource.includes("mt-[84px]"), "Non-home hero image begins at the navbar bottom"],
+  [heroSource.includes("mt-[84px]") && heroSource.includes("absolute inset-0 z-0") && !heroSource.includes("top-[84px]"), "Non-home hero section and image begin below the fixed navbar"],
   [contactSource.includes("lg:self-stretch") && contactSource.includes("justify-between"), "Contact direct panel balances height beside form"],
 ];
 
