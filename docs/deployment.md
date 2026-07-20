@@ -19,6 +19,7 @@
 - `npx pnpm@11.7.0 install --frozen-lockfile`
 - `node scripts/verify-about-page.mjs`
 - `npm run build`
+- Confirm the build creates the default `.next` directory.
 
 ## Deployment Requirement
 
@@ -28,3 +29,5 @@ This app is server-rendered by Next.js and is ready for Vercel deployment. Deplo
 - a `VERCEL_TOKEN` passed to the Vercel CLI.
 
 GitHub Pages is not currently a safe deployment target without additional static-export/base-path work because the repository would be served under `/Sarak-Website/` while the app contains root-relative public asset paths.
+
+If Vercel reports that `.next` is missing, confirm the deployment is building the latest `main` commit and that the project Output Directory is empty or `.next`.
