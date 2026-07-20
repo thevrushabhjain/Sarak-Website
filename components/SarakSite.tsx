@@ -768,7 +768,6 @@ function Activities() {
           </div>
         </div>
       </section>
-      <ContactStrip />
     </>
   );
 }
@@ -1625,13 +1624,13 @@ function PremiumHeader() {
                   <X />
                 </button>
               </div>
-              <nav className="mt-12 grid gap-2">
+              <nav className="mt-7 grid gap-1.5">
                 {links.map(([n, h]) => (
                   <Link
                     onClick={() => setOpen(false)}
                     key={h}
                     href={h}
-                    className="rounded-2xl px-5 py-4 text-lg font-semibold text-[#4f4037] transition hover:bg-[#fde8d7] hover:text-[#c8713d]"
+                    className="rounded-2xl px-5 py-3 text-base font-semibold text-[#4f4037] transition hover:bg-[#fde8d7] hover:text-[#c8713d]"
                   >
                     {n}
                   </Link>
@@ -1639,7 +1638,7 @@ function PremiumHeader() {
                 <Link
                   onClick={() => setOpen(false)}
                   href="/programs/join-paryushan"
-                  className="mt-4 rounded-2xl bg-[#f29a5b] px-5 py-4 text-center font-bold text-white"
+                  className="mt-2 rounded-2xl bg-[#f29a5b] px-5 py-3 text-center font-bold text-white"
                 >
                   Join Paryushan
                 </Link>
@@ -1771,9 +1770,9 @@ function PremiumPageHero({
   imageClassName?: string;
 }) {
   return (
-    <section className="relative mt-[84px] overflow-hidden border-b border-[#dfa35f] bg-[#fff8ec]">
+    <section className="relative overflow-hidden border-b border-[#dfa35f] bg-[#fff8ec] pt-[84px]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_30%,rgba(255,255,255,.95),rgba(255,247,234,.72)_35%,rgba(241,171,91,.18)_100%)]" />
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 top-[84px]">
         <img
           src={image}
           alt={imageAlt}
@@ -1979,7 +1978,7 @@ function HomeMissionSections() {
               <motion.article
                 {...reveal}
                 key={service.title}
-                className={`grid items-center gap-7 py-9 sm:py-11 lg:grid-cols-[470px_1fr] lg:gap-12 ${i > 0 ? "border-t border-orange-200/70" : ""}`}
+                className={`grid items-center gap-7 py-9 sm:py-11 lg:gap-12 ${i % 2 ? "lg:grid-cols-[minmax(0,1fr)_470px]" : "lg:grid-cols-[470px_minmax(0,1fr)]"} ${i > 0 ? "border-t border-orange-200/70" : ""}`}
               >
                 <div
                   className={`${i % 2 ? "lg:order-2" : ""} h-[220px] w-full overflow-hidden rounded-[26px] bg-orange-50 sm:h-[280px] lg:h-[320px] lg:w-[430px] xl:w-[470px]`}
@@ -1990,9 +1989,7 @@ function HomeMissionSections() {
                     className="h-full w-full object-cover object-center transition duration-700 hover:scale-105"
                   />
                 </div>
-                <div
-                  className={`${i % 2 ? "lg:order-1" : ""} ${service.title === "सेवा" ? "lg:ml-auto lg:max-w-[760px] lg:pl-12" : ""}`}
-                >
+                <div className={i % 2 ? "lg:order-1" : ""}>
                   <span className="hindi text-xs font-bold tracking-[.24em] text-[#df854b]">
                     0{i + 1}
                   </span>

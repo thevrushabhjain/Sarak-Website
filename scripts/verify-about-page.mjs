@@ -106,7 +106,11 @@ const checks = [
   [!refinedHomeSource.includes("supportSystem"), "Support system removed from Home page"],
   [refinedHomeSource.includes("Make a Donation") && !refinedHomeSource.includes("Become a Volunteer"), "Home footer CTA is donation-only"],
   [refinedHomeSource.includes("group-hover:bg-[#f97216]"), "Featured activity arrow hover background uses #f97216"],
-  [missionSource.includes("lg:ml-auto") && missionSource.includes("service.title === \"सेवा\""), "Seva content block is shifted right on desktop"],
+  [missionSource.includes("lg:grid-cols-[470px_minmax(0,1fr)]") && missionSource.includes("lg:grid-cols-[minmax(0,1fr)_470px]"), "Service rows use mirrored balanced desktop grids"],
+  [!missionSource.includes("service.title === \"सेवा\"") && !missionSource.includes("lg:ml-auto"), "Seva row no longer uses custom offset classes"],
+  [source.includes("mt-7 grid gap-1.5") && source.includes("py-3 text-base") && source.includes("mt-2 rounded-2xl"), "Mobile sidebar navigation spacing is compact"],
+  [!activitiesSource.includes("<ContactStrip />"), "Activities page removes the We are listening section"],
+  [heroSource.includes("top-[84px]") && !heroSource.includes("mt-[84px]"), "Non-home hero image begins at the navbar bottom"],
   [contactSource.includes("lg:self-stretch") && contactSource.includes("justify-between"), "Contact direct panel balances height beside form"],
 ];
 
