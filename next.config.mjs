@@ -4,5 +4,5 @@ import { fileURLToPath } from 'node:url';
 const projectRoot = dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('next').NextConfig} */
-const nextConfig = { distDir: '.next-sarak', outputFileTracingRoot: projectRoot };
+const nextConfig = { outputFileTracingRoot: projectRoot };
 export default nextConfig;
