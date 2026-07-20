@@ -741,6 +741,7 @@ function Activities() {
         copy="गाँव-गाँव तक शिक्षा, स्वास्थ्य, संस्कार और साधर्मिक सेवा पहुँचाने वाली गतिविधियाँ।"
         image={pageHeroImages.activities}
         imageAlt="सराक सेवा गतिविधि"
+        imageClassName="object-[56%_center] sm:object-[58%_center] lg:object-center"
       />
       <section className="px-5 py-24">
         <div className="mx-auto max-w-7xl space-y-20">
@@ -782,6 +783,7 @@ function PastActivitiesPage() {
         copy="सराक परिवार की वे प्रेरक गतिविधियाँ जिन्होंने गाँवों, परिवारों और साधर्मिक जीवन में सकारात्मक परिवर्तन जोड़ा।"
         image={pageHeroImages.activities}
         imageAlt="पूर्व सराक गतिविधियाँ"
+        imageClassName="object-[56%_center] sm:object-[58%_center] lg:object-center"
       />
       <section className="px-5 py-24">
         <div className="mx-auto max-w-7xl">
@@ -807,6 +809,7 @@ function ActivityDetail({ slug }: { slug: string }) {
         copy={a.description}
         image={a.image}
         imageAlt={a.title}
+        imageClassName="object-[50%_center] sm:object-[54%_center] lg:object-center"
       />
       <div className="bg-cream px-5 pt-8">
         <div className="mx-auto max-w-7xl">
@@ -913,6 +916,7 @@ function Programs() {
         copy="हमारे विविध कार्यक्रम समाज के सर्वांगीण विकास के लिए समर्पित हैं। आइए, हम सब मिलकर जागरूक, संवेदनशील और सशक्त समाज के निर्माण में योगदान दें।"
         image={pageHeroImages.programs}
         imageAlt="जैन मंदिर परिसर"
+        imageClassName="object-[60%_center] sm:object-[62%_center] lg:object-center"
       />
       <section className="px-5 py-24">
         <div className="mx-auto max-w-7xl">
@@ -943,6 +947,7 @@ function ProgramDetail({ slug }: { slug: string }) {
         copy={p.description}
         image={p.image}
         imageAlt={p.title}
+        imageClassName="object-[58%_center] sm:object-[60%_center] lg:object-center"
       />
       <section className="px-5 py-24">
         <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_340px]">
@@ -1139,6 +1144,7 @@ function Donation() {
         copy="हर योगदान शिक्षा, स्वास्थ्य, तीर्थ संरक्षण और साधर्मिक सेवा के कार्यों को आगे बढ़ाता है।"
         image={images.food}
         imageAlt="दान और सेवा"
+        imageClassName="object-[55%_center] sm:object-[58%_center] lg:object-center"
       />
       <section className="px-5 py-24">
         <div className="mx-auto max-w-7xl">
@@ -1249,6 +1255,7 @@ function GalleryPage() {
         image="/DSC_7026.JPG"
         imageAlt="सराक समुदाय की स्मृतियाँ"
         titleClassName="leading-[1.24]"
+        imageClassName="object-[48%_center] sm:object-[52%_center] lg:object-center"
       />
       <section className="px-5 py-24">
         <div className="mx-auto max-w-7xl">
@@ -1319,6 +1326,7 @@ function BlogsPage() {
         copy="सराक समाज, सेवा, शिक्षा और जैन संस्कृति से जुड़े लेख और विचार।"
         image={pageHeroImages.blogs}
         imageAlt="सराक इतिहास और विरासत"
+        imageClassName="object-[52%_center] sm:object-[54%_center] lg:object-center"
       />
       <section className="bg-[#fffaf5] px-4 py-16 sm:px-6 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-7xl">
@@ -1414,6 +1422,7 @@ function Contact() {
         image={images.youth}
         imageAlt="सराक समुदाय संपर्क"
         titleClassName="lg:whitespace-nowrap"
+        imageClassName="object-[46%_center] sm:object-[50%_center] lg:object-center"
       />
       <section className="px-5 py-24">
         <div className="mx-auto max-w-7xl">
@@ -1750,6 +1759,7 @@ function PremiumPageHero({
   image,
   imageAlt,
   titleClassName = "",
+  imageClassName = "object-[62%_center] lg:object-center",
 }: {
   eyebrow: string;
   title: string;
@@ -1758,10 +1768,20 @@ function PremiumPageHero({
   image: string;
   imageAlt: string;
   titleClassName?: string;
+  imageClassName?: string;
 }) {
   return (
     <section className="relative mt-[84px] overflow-hidden border-b border-[#dfa35f] bg-[#fff8ec]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_30%,rgba(255,255,255,.95),rgba(255,247,234,.72)_35%,rgba(241,171,91,.18)_100%)]" />
+      <div className="absolute inset-0 z-0">
+        <img
+          src={image}
+          alt={imageAlt}
+          className={`h-full w-full object-cover opacity-38 mix-blend-multiply md:opacity-72 lg:opacity-92 ${imageClassName}`}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#fff8ec] via-[#fff8ec]/78 to-[#fff8ec]/10 lg:via-[#fff8ec]/50 lg:to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#fff8ec]/55 via-transparent to-transparent" />
+      </div>
       <img
         src="/decorations/mandala.svg"
         alt=""
@@ -1774,7 +1794,7 @@ function PremiumPageHero({
         aria-hidden="true"
         className="pointer-events-none absolute bottom-4 left-1/2 hidden w-20 -translate-x-1/2 opacity-30 md:block"
       />
-      <div className="relative mx-auto grid min-h-[430px] max-w-[1500px] items-center px-4 py-12 sm:px-6 md:min-h-[460px] lg:grid-cols-[44%_56%] lg:px-10 lg:py-0 xl:px-16">
+      <div className="relative z-10 mx-auto grid min-h-[430px] max-w-[1500px] items-center px-4 py-12 sm:px-6 md:min-h-[460px] lg:grid-cols-[44%_56%] lg:px-10 lg:py-0 xl:px-16">
         <motion.div
           initial={{ opacity: 0, x: -24 }}
           animate={{ opacity: 1, x: 0 }}
@@ -1806,19 +1826,7 @@ function PremiumPageHero({
             {copy}
           </p>
         </motion.div>
-        <motion.div
-          initial={{ opacity: 0, scale: 1.04 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1 }}
-          className="absolute inset-0 lg:absolute lg:inset-y-0 lg:right-0 lg:w-[62%]"
-        >
-          <img
-            src={image}
-            alt={imageAlt}
-            className="h-full w-full object-cover object-center opacity-30 mix-blend-multiply md:opacity-80 lg:object-right lg:opacity-95"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#fff8ec] via-[#fff8ec]/82 to-transparent lg:from-[#fff8ec] lg:via-[#fff8ec]/48 lg:to-[#fff8ec]/8" />
-        </motion.div>
+        <div aria-hidden="true" className="hidden lg:block" />
       </div>
       <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#d89f4f] to-transparent" />
     </section>
@@ -1835,6 +1843,7 @@ function AboutPage() {
         copy="सराक उत्कर्ष अभियान धर्म, शिक्षा और सेवा के माध्यम से सराक समाज को पुनः जैन संस्कारों और तीर्थ परंपरा से जोड़ने का संकल्प है।"
         image={pageHeroImages.about}
         imageAlt="भगवान की सुवर्ण मूर्ति"
+        imageClassName="object-[68%_center] sm:object-[70%_center] lg:object-center"
       />
 
       <section className="bg-white px-4 py-16 sm:px-6 sm:py-20 lg:py-24">
