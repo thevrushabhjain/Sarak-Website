@@ -5,3 +5,4 @@ outputs/
 *.log
 .env*
 sarak-admin/
+.wrangler/
