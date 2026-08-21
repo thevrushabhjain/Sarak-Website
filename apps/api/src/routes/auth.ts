@@ -30,16 +30,37 @@ export function authRoutes() {
     const { email, password } = await c.req.json<{ email: string; password: string }>();
     const norm = email.trim().toLowerCase();
     const id = crypto.randomUUID();
-    await c.env.DB.prepare(
-      "INSERT INTO users (id,email,password_hash,role) VALUES (?,?,?,'owner')",
-    ).bind(id, norm, await authCrypto.hashPassword(password)).run();
+
+    // Owner row and all recovery codes must commit together: a mid-request
+    // failure would otherwise leave an owner who can never recover access.
+    const statements: D1PreparedStatement[] = [
+      c.env.DB.prepare(
+        "INSERT INTO users (id,email,password_hash,role) VALUES (?,?,?,'owner')",
+      ).bind(id, norm, await authCrypto.hashPassword(password)),
+    ];
 
     const codes: string[] = [];
     for (let i = 0; i < 10; i++) codes.push(genRecoveryCode());
     for (const code of codes) {
-      await c.env.DB.prepare(
-        "INSERT INTO recovery_codes (id,user_id,code_hash) VALUES (?,?,?)",
-      ).bind(crypto.randomUUID(), id, await authCrypto.hashCode(code)).run();
+      statements.push(
+        c.env.DB.prepare(
+          "INSERT INTO recovery_codes (id,user_id,code_hash) VALUES (?,?,?)",
+        ).bind(crypto.randomUUID(), id, await authCrypto.hashCode(code)),
+      );
+    }
+
+    try {
+      await c.env.DB.batch(statements);
+    } catch (err) {
+      // The partial unique index on users(role) makes a concurrent bootstrap
+      // lose the race here instead of creating a second owner.
+      if (/UNIQUE/i.test(err instanceof Error ? err.message : String(err))) {
+        const winner = await c.env.DB.prepare(
+          "SELECT id FROM users WHERE role='owner' LIMIT 1",
+        ).first();
+        if (winner) return c.json({ error: "already_bootstrapped" }, 409);
+      }
+      throw err;
     }
     return c.json({ user: { id, email: norm, role: "owner" }, recovery_codes: codes }, 201);
   });
@@ -105,13 +126,18 @@ export function authRoutes() {
     ).bind(hash).first<{ id: string; user_id: string }>();
     if (!row) return c.json({ error: "invalid_code" }, 400);
 
-    const batch: D1PreparedStatement[] = [
-      c.env.DB.prepare("UPDATE recovery_codes SET used_at=unixepoch() WHERE id=?").bind(row.id),
+    // TOCTOU guard: atomically claim the code so two concurrent requests
+    // presenting the same code cannot both succeed; the loser changes 0 rows.
+    const claimed = await c.env.DB.prepare(
+      "UPDATE recovery_codes SET used_at=unixepoch() WHERE id=? AND used_at IS NULL",
+    ).bind(row.id).run();
+    if (claimed.meta.changes !== 1) return c.json({ error: "invalid_code" }, 400);
+
+    await c.env.DB.batch([
       c.env.DB.prepare("UPDATE users SET password_hash=? WHERE id=?")
         .bind(await authCrypto.hashPassword(new_password), row.user_id),
       c.env.DB.prepare("DELETE FROM sessions WHERE user_id=?").bind(row.user_id),
-    ];
-    await c.env.DB.batch(batch);
+    ]);
     return c.body(null, 204);
   });
 

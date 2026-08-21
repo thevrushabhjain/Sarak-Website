@@ -124,4 +124,17 @@ describe("recovery", () => {
     expect(newLogin.status).toBe(200);
     expect((await newLogin.json<any>()).user.role).toBe("owner");
   });
+
+  it("rejects reuse of an already-consumed recovery code", async () => {
+    // The same plaintext code that succeeded above must be single-use.
+    const reuse = await SELF.fetch("https://example.com/admin/auth/recover", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code: ownerRecoveryCodes[0],
+        new_password: "AgainPass!234",
+      }),
+    });
+    expect(reuse.status).toBe(400);
+    expect(await reuse.json()).toEqual({ error: "invalid_code" });
+  });
 });
