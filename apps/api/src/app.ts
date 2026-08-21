@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { authRoutes } from "./routes/auth";
+import { contentRoutes } from "./routes/content";
 import { mediaRoutes } from "./routes/media";
 
 export type Bindings = {
@@ -16,5 +17,6 @@ export function createApp(_env: Bindings) {
   // session-gated (the /media POST shares the same guard).
   app.route("/admin/media", mediaRoutes());
   app.route("/media", mediaRoutes());
+  app.route("/api", contentRoutes());
   return app;
 }
