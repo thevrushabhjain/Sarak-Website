@@ -4,3 +4,4 @@ work/
 outputs/
 *.log
 .env*
+sarak-admin/
