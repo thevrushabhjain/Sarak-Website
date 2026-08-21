@@ -6,3 +6,6 @@ outputs/
 .env*
 sarak-admin/
 .wrangler/
+.superpowers/
+sdd-*.sh
+apps/api/dist/
