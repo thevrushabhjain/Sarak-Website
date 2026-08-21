@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { authRoutes } from "./routes/auth";
+import { mediaRoutes } from "./routes/media";
 
 export type Bindings = {
   DB: D1Database;
@@ -11,5 +12,9 @@ export function createApp(_env: Bindings) {
   const app = new Hono<{ Bindings: Bindings }>();
   app.get("/healthz", (c) => c.json({ ok: true }));
   app.route("/admin/auth", authRoutes());
+  // GET is intentionally unguarded on both mounts; POST /admin/media is
+  // session-gated (the /media POST shares the same guard).
+  app.route("/admin/media", mediaRoutes());
+  app.route("/media", mediaRoutes());
   return app;
 }
