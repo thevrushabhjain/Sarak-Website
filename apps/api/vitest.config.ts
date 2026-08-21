@@ -14,10 +14,14 @@ export default defineWorkersConfig(async () => {
       setupFiles: ["./test/apply-migrations.ts"],
       poolOptions: {
         workers: {
+          // Auth flows are sequential and stateful (bootstrap -> login -> recover);
+          // default per-test storage isolation resets D1 between tests.
+          isolatedStorage: false,
           wrangler: { configPath: "./wrangler.jsonc" },
           miniflare: {
             bindings: {
               TEST_MIGRATIONS: migrations,
+              SARAK_BOOTSTRAP_TOKEN: "test-bootstrap-token",
             },
           },
         },
