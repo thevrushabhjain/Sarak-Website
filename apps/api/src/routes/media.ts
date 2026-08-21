@@ -26,11 +26,19 @@ export function mediaRoutes() {
 
     const key = `m/${crypto.randomUUID()}.${EXT[kind]}`;
     const id = crypto.randomUUID();
-    const alt = (form.get("alt") as string) ?? "";
+    const altRaw = form.get("alt");
+    const alt = typeof altRaw === "string" ? altRaw : "";
     await c.env.MEDIA.put(key, bytes, { httpMetadata: { contentType: MIME[kind] } });
-    await c.env.DB.prepare(
-      "INSERT INTO media (id,key,mime,bytes,alt,created_by) VALUES (?,?,?,?,?,?)",
-    ).bind(id, key, MIME[kind], bytes.byteLength, alt, null).run();
+    try {
+      await c.env.DB.prepare(
+        "INSERT INTO media (id,key,mime,bytes,alt,created_by) VALUES (?,?,?,?,?,?)",
+      ).bind(id, key, MIME[kind], bytes.byteLength, alt, null).run();
+    } catch (err) {
+      // Row insert failed: drop the just-stored object so /media/<key>
+      // never keeps serving an orphaned public file.
+      await c.env.MEDIA.delete(key);
+      throw err;
+    }
 
     return c.json({
       id, key, mime: MIME[kind], bytes: bytes.byteLength, url: `/media/${key}`,

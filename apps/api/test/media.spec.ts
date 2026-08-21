@@ -75,6 +75,21 @@ describe("media upload", () => {
     expect(get.headers.get("cache-control")).toContain("immutable");
   });
 
+  it("coerces non-string alt field instead of failing", async () => {
+    const cookie = await sessionCookie();
+    const fd = new FormData();
+    fd.append("file", new Blob([pngBytes()], { type: "image/png" }), "photo.png");
+    // Odd input: alt arrives as a File, which must bind as "" not blow up D1.
+    fd.append("alt", new Blob(["not text"]), "alt.bin");
+    const res = await SELF.fetch("https://example.com/admin/media", {
+      method: "POST", body: fd, headers: { cookie },
+    });
+    expect(res.status).toBe(201);
+    const body = await res.json<any>();
+    const get = await SELF.fetch(`https://example.com${body.url}`);
+    expect(get.status).toBe(200);
+  });
+
   it("rejects svg masquerading as png", async () => {
     const cookie = await sessionCookie();
     const svg = new TextEncoder().encode("<svg xmlns='http://www.w3.org/2000/svg'/>");
