@@ -22,4 +22,13 @@ describe("schema 0001", () => {
     expect(names).toContain("recovery_codes");
     expect(names).toContain("login_attempts");
   });
+
+  it("has content and media tables", async () => {
+    const db = env.DB;
+    const rows = await db.prepare(
+      "SELECT name FROM sqlite_master WHERE type='table'",
+    ).all<{ name: string }>();
+    const names = rows.results.map((r) => r.name);
+    expect(names).toEqual(expect.arrayContaining(["media","activities","programs","news"]));
+  });
 });
