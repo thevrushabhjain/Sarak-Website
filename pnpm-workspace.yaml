@@ -1,4 +1,11 @@
 allowBuilds:
   sharp: true
+  esbuild: true
+  workerd: true
 onlyBuiltDependencies:
   - sharp
+  - esbuild
+  - workerd
+
+packages:
+  - apps/*
