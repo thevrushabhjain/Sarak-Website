@@ -4,3 +4,8 @@ work/
 outputs/
 *.log
 .env*
+sarak-admin/
+.wrangler/
+.superpowers/
+sdd-*.sh
+apps/api/dist/
