@@ -9,3 +9,4 @@ sarak-admin/
 .superpowers/
 sdd-*.sh
 apps/api/dist/
+.dev.vars
