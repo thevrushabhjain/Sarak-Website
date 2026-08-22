@@ -158,7 +158,7 @@ describe("content lifecycle", () => {
     const cookie = await sessionCookie();
     // Seed a published row with a pending draft overlay written via PATCH.
     await env.DB.prepare(
-      `INSERT INTO activities (id,slug,title,status) VALUES ('ca-act-1','ca-live-one','Live One','published')`,
+      `INSERT OR REPLACE INTO activities (id,slug,title,status) VALUES ('ca-act-1','ca-live-one','Live One','published')`,
     ).run();
     const patchRes = await SELF.fetch("https://example.com/admin/content/activities/ca-act-1", {
       method: "PATCH",
@@ -169,7 +169,7 @@ describe("content lifecycle", () => {
 
     // ?status=trashed surfaces trashed rows explicitly.
     await env.DB.prepare(
-      `INSERT INTO activities (id,slug,title,status,prev_status)
+      `INSERT OR REPLACE INTO activities (id,slug,title,status,prev_status)
        VALUES ('ca-act-2','ca-trashed-one','Trashed One','trashed','published')`,
     ).run();
     const trashedList = await SELF.fetch(
@@ -461,7 +461,7 @@ describe("content revisions", () => {
     const cookie = await sessionCookie();
     await resetFixtures();
     await env.DB.prepare(
-      `INSERT INTO activities (id,slug,title,status) VALUES ('ca-act-2','ca-rev-live','Rev One','unpublished')`,
+      `INSERT OR REPLACE INTO activities (id,slug,title,status) VALUES ('ca-act-2','ca-rev-live','Rev One','unpublished')`,
     ).run();
     const pub1 = await SELF.fetch(
       "https://example.com/admin/content/activities/ca-act-2/publish",
