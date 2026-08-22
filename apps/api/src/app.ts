@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { authRoutes } from "./routes/auth";
+import { contentAdminRoutes } from "./routes/content-admin";
 import { contentRoutes } from "./routes/content";
 import { mediaRoutes } from "./routes/media";
 
@@ -16,6 +17,7 @@ export function createApp(_env: Bindings) {
   // GET is intentionally unguarded on both mounts; POST /admin/media is
   // session-gated (the /media POST shares the same guard).
   app.route("/admin/media", mediaRoutes());
+  app.route("/admin/content", contentAdminRoutes());
   app.route("/media", mediaRoutes());
   app.route("/api", contentRoutes());
   return app;

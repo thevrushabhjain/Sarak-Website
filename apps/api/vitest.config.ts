@@ -11,6 +11,8 @@ export default defineWorkersConfig(async () => {
 
   return {
     test: {
+    // Shared D1 across spec files requires sequential execution
+    fileParallelism: false,
       setupFiles: ["./test/apply-migrations.ts"],
       poolOptions: {
         workers: {

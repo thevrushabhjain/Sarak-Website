@@ -9,8 +9,8 @@ export type UserRow = {
   role: "owner" | "editor";
 };
 
-export async function requireSession(
-  c: Context<{ Bindings: Bindings }>,
+export async function requireSession<E extends { Bindings: Bindings }>(
+  c: Context<E>,
 ): Promise<UserRow> {
   const cookie = c.req.header("cookie") ?? "";
   const m = cookie.match(/(?:^|;\s*)sarak_session=([A-Za-z0-9_-]+)/);
