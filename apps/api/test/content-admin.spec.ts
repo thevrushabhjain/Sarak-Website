@@ -48,7 +48,6 @@ async function sessionCookie(): Promise<string> {
 // Editors are allowed on every /admin/content route; users-admin routes that
 // would create one arrive in a later task, so seed the editor row directly.
 async function editorCookie(): Promise<string> {
-  const token = "editor-session-token-ca";
   await env.DB.prepare(
     `INSERT INTO users (id,email,password_hash,role) VALUES ('ed-ca','editor-ca@test.local',?,'editor')
      ON CONFLICT(email) DO UPDATE SET password_hash=excluded.password_hash, disabled_at=NULL`,
@@ -197,13 +196,6 @@ describe("content lifecycle", () => {
       headers: H(cookie),
       body: JSON.stringify({ slug: "new-slug" }),
     });
-    if (slugRes.status !== 400) {
-      console.log("DEBUG slugRes", slugRes.status, await slugRes.text(), "cookie:", cookie);
-      const sess = await env.DB.prepare(
-        `SELECT s.token_hash, s.expires_at, u.disabled_at FROM sessions s JOIN users u ON u.id=s.user_id`,
-      ).all();
-      console.log("DEBUG sessions", JSON.stringify(sess.results));
-    }
     expect(slugRes.status).toBe(400);
 
     const unkRes = await SELF.fetch("https://example.com/admin/content/activities/ca-act-1", {
