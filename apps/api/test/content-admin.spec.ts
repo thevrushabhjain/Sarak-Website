@@ -95,6 +95,9 @@ describe("content admin auth", () => {
       SELF.fetch("https://example.com/admin/content/activities/x/publish", { method: "POST" }),
       SELF.fetch("https://example.com/admin/content/activities/x/unpublish", { method: "POST" }),
       SELF.fetch("https://example.com/admin/content/activities/x/restore", { method: "POST" }),
+      SELF.fetch("https://example.com/admin/content/activities/x/revisions"),
+      SELF.fetch("https://example.com/admin/content/activities/x/revisions/1"),
+      SELF.fetch("https://example.com/admin/content/activities/x/revisions/1/restore", { method: "POST" }),
     ]) {
       const res = await req;
       expect(res.status).toBe(401);
@@ -447,5 +450,178 @@ describe("content lifecycle", () => {
       await SELF.fetch("https://example.com/api/collections/news")
     ).json<any[]>();
     expect(publicNews.find((r) => r.slug === "ca-news-flash").excerpt).toBe("edited by editor");
+  });
+});
+
+describe("content revisions", () => {
+  // Fixture: ca-act-2 accumulates two revisions — v1 snapshots the seeded
+  // base columns ("Rev One"), v2 captures "Rev Two" written via PATCH
+  // between publishes. Later tests in this block chain on that state.
+  it("lists revisions newest-first (data omitted) and serves one parsed revision", async () => {
+    const cookie = await sessionCookie();
+    await resetFixtures();
+    await env.DB.prepare(
+      `INSERT INTO activities (id,slug,title,status) VALUES ('ca-act-2','ca-rev-live','Rev One','unpublished')`,
+    ).run();
+    const pub1 = await SELF.fetch(
+      "https://example.com/admin/content/activities/ca-act-2/publish",
+      { method: "POST", headers: H(cookie) },
+    );
+    expect(pub1.status).toBe(200); // revision v1 = Rev One
+    const patchRes = await SELF.fetch("https://example.com/admin/content/activities/ca-act-2", {
+      method: "PATCH",
+      headers: H(cookie),
+      body: JSON.stringify({ title: "Rev Two" }),
+    });
+    expect(patchRes.status).toBe(200);
+    // Publish requires draft/unpublished — flip back before the second round.
+    const unpub = await SELF.fetch(
+      "https://example.com/admin/content/activities/ca-act-2/unpublish",
+      { method: "POST", headers: H(cookie) },
+    );
+    expect(unpub.status).toBe(200);
+    const pub2 = await SELF.fetch(
+      "https://example.com/admin/content/activities/ca-act-2/publish",
+      { method: "POST", headers: H(cookie) },
+    );
+    expect(pub2.status).toBe(200); // revision v2 = Rev Two
+
+    const listRes = await SELF.fetch(
+      "https://example.com/admin/content/activities/ca-act-2/revisions",
+      { headers: H(cookie) },
+    );
+    expect(listRes.status).toBe(200);
+    const revs = await listRes.json<any[]>();
+    expect(revs.map((r) => r.version)).toEqual([2, 1]); // newest first
+    expect(revs.every((r) => typeof r.created_at === "number" && r.created_at > 0)).toBe(true);
+    expect(revs.every((r) => !("data" in r))).toBe(true);
+
+    const oneRes = await SELF.fetch(
+      "https://example.com/admin/content/activities/ca-act-2/revisions/1",
+      { headers: H(cookie) },
+    );
+    expect(oneRes.status).toBe(200);
+    const v1 = await oneRes.json<any>();
+    expect(v1.version).toBe(1);
+    expect(v1.created_at).toBeGreaterThan(0);
+    expect(v1.data).toEqual({
+      slug: "ca-rev-live",
+      title: "Rev One",
+      tag: "",
+      image_url: "",
+      description: "",
+      body: "",
+    });
+
+    // Absent version → 404.
+    const missRes = await SELF.fetch(
+      "https://example.com/admin/content/activities/ca-act-2/revisions/99",
+      { headers: H(cookie) },
+    );
+    expect(missRes.status).toBe(404);
+  });
+
+  it("restore overlays a prior revision as draft; state and public read unchanged until publish", async () => {
+    const cookie = await sessionCookie(); // ca-act-2: v1=Rev One, v2=Rev Two, published
+    const res = await SELF.fetch(
+      "https://example.com/admin/content/activities/ca-act-2/revisions/1/restore",
+      { method: "POST", headers: H(cookie) },
+    );
+    expect(res.status).toBe(200);
+    const row = await res.json<any>();
+    expect(row._status).toBe("published"); // any live state allowed, none changed
+    expect(row.title).toBe("Rev One"); // overlay merged over the live base
+
+    // Storage: base columns untouched, draft_json holds the restored payload.
+    const dbRow = await env.DB.prepare(
+      `SELECT title, draft_json FROM activities WHERE id='ca-act-2'`,
+    ).first<any>();
+    expect(dbRow.title).toBe("Rev Two");
+    expect(JSON.parse(dbRow.draft_json).title).toBe("Rev One");
+
+    // Public read still serves the live v2 — publishing remains explicit.
+    const before = await (
+      await SELF.fetch("https://example.com/api/collections/activities")
+    ).json<any[]>();
+    expect(before.find((r) => r.slug === "ca-rev-live").title).toBe("Rev Two");
+
+    // Publishing remains explicit — and the publish state machine still
+    // applies (record is published here, so flip to unpublished first).
+    const flip = await SELF.fetch(
+      "https://example.com/admin/content/activities/ca-act-2/unpublish",
+      { method: "POST", headers: H(cookie) },
+    );
+    expect(flip.status).toBe(200);
+
+    const pubRes = await SELF.fetch(
+      "https://example.com/admin/content/activities/ca-act-2/publish",
+      { method: "POST", headers: H(cookie) },
+    );
+    expect(pubRes.status).toBe(200);
+    const after = await (
+      await SELF.fetch("https://example.com/api/collections/activities")
+    ).json<any[]>();
+    expect(after.find((r) => r.slug === "ca-rev-live").title).toBe("Rev One");
+  });
+
+  it("blocks restore onto trashed targets and rejects missing records or collections", async () => {
+    const cookie = await sessionCookie(); // ca-act-2: three revisions after the last test's publish
+    await env.DB.prepare(
+      `UPDATE activities SET status='trashed', prev_status='published' WHERE id='ca-act-2'`,
+    ).run();
+    const trashedRes = await SELF.fetch(
+      "https://example.com/admin/content/activities/ca-act-2/revisions/1/restore",
+      { method: "POST", headers: H(cookie) },
+    );
+    expect(trashedRes.status).toBe(409);
+    expect(await trashedRes.json<any>()).toEqual({ error: "not_trashed" });
+
+    // Missing record → 404 across all three endpoints.
+    for (const req of [
+      SELF.fetch("https://example.com/admin/content/activities/nope/revisions", {
+        headers: H(cookie),
+      }),
+      SELF.fetch("https://example.com/admin/content/activities/nope/revisions/1", {
+        headers: H(cookie),
+      }),
+      SELF.fetch("https://example.com/admin/content/activities/nope/revisions/1/restore", {
+        method: "POST",
+        headers: H(cookie),
+      }),
+    ]) {
+      const res = await req;
+      expect(res.status).toBe(404);
+      expect(await res.json<object>()).toEqual({ error: "not_found" });
+    }
+
+    // Unknown collection → 404 unknown_collection.
+    const unknown = await SELF.fetch("https://example.com/admin/content/widgets/x/revisions", {
+      headers: H(cookie),
+    });
+    expect(unknown.status).toBe(404);
+    expect(await unknown.json<any>()).toEqual({ error: "unknown_collection" });
+  });
+
+  it("allows editors on the revision endpoints", async () => {
+    const ed = await editorCookie();
+    // Leave the trashed precondition of the prior test behind.
+    await env.DB.prepare(
+      `UPDATE activities SET status='unpublished', prev_status=NULL WHERE id='ca-act-2'`,
+    ).run();
+    const edList = await SELF.fetch(
+      "https://example.com/admin/content/activities/ca-act-2/revisions",
+      { headers: H(ed) },
+    );
+    expect(edList.status).toBe(200);
+    const edDetail = await SELF.fetch(
+      "https://example.com/admin/content/activities/ca-act-2/revisions/2",
+      { headers: H(ed) },
+    );
+    expect(edDetail.status).toBe(200);
+    const edRestore = await SELF.fetch(
+      "https://example.com/admin/content/activities/ca-act-2/revisions/2/restore",
+      { method: "POST", headers: H(ed) },
+    );
+    expect(edRestore.status).toBe(200);
   });
 });

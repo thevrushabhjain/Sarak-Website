@@ -85,6 +85,14 @@ async function fetchRow(
   return c.env.DB.prepare(`SELECT * FROM ${name} WHERE id = ?`).bind(id).first<ContentRow>();
 }
 
+// Revision version segment: digits only, within safe integer range.
+// Anything else identifies no revision — callers respond 404.
+function parseVersion(raw: string): number | null {
+  if (!/^\d+$/.test(raw)) return null;
+  const n = Number(raw);
+  return Number.isSafeInteger(n) ? n : null;
+}
+
 export function contentAdminRoutes() {
   const app = new Hono<Env>();
 
@@ -224,6 +232,55 @@ export function contentAdminRoutes() {
     await c.env.DB.prepare(
       `UPDATE ${name} SET status = ?, prev_status = NULL WHERE id = ?`,
     ).bind(back, row.id).run();
+    return c.json(merged((await fetchRow(c, name, row.id))!));
+  });
+
+  // Revision index for one record — newest first, payload data omitted.
+  app.get("/:collection/:id/revisions", async (c) => {
+    const name = c.req.param("collection");
+    if (!isCollection(name)) return c.json({ error: "unknown_collection" }, 404);
+    const row = await fetchRow(c, name, c.req.param("id"));
+    if (!row) return c.json({ error: "not_found" }, 404);
+    const { results } = await c.env.DB.prepare(
+      `SELECT version, created_at FROM revisions
+       WHERE collection = ? AND record_id = ? ORDER BY version DESC`,
+    ).bind(name, row.id).all<{ version: number; created_at: number }>();
+    return c.json(results);
+  });
+
+  // One full revision with its snapshot parsed back to JSON.
+  app.get("/:collection/:id/revisions/:version", async (c) => {
+    const name = c.req.param("collection");
+    if (!isCollection(name)) return c.json({ error: "unknown_collection" }, 404);
+    const version = parseVersion(c.req.param("version"));
+    if (version === null) return c.json({ error: "not_found" }, 404);
+    const rev = await c.env.DB.prepare(
+      `SELECT version, data, created_at FROM revisions
+       WHERE collection = ? AND record_id = ? AND version = ?`,
+    ).bind(name, c.req.param("id"), version)
+      .first<{ version: number; data: string; created_at: number }>();
+    if (!rev) return c.json({ error: "not_found" }, 404);
+    return c.json({ version: rev.version, data: JSON.parse(rev.data), created_at: rev.created_at });
+  });
+
+  // Restore-as-draft: overlay draft_json with a prior revision's payload.
+  // Allowed from any live state; status and base columns stay put, so
+  // publishing the restored content remains an explicit follow-up.
+  app.post("/:collection/:id/revisions/:version/restore", async (c) => {
+    const name = c.req.param("collection");
+    if (!isCollection(name)) return c.json({ error: "unknown_collection" }, 404);
+    const row = await fetchRow(c, name, c.req.param("id"));
+    if (!row) return c.json({ error: "not_found" }, 404);
+    if (row.status === "trashed") return c.json({ error: "not_trashed" }, 409);
+    const version = parseVersion(c.req.param("version"));
+    if (version === null) return c.json({ error: "not_found" }, 404);
+    const rev = await c.env.DB.prepare(
+      `SELECT data FROM revisions WHERE collection = ? AND record_id = ? AND version = ?`,
+    ).bind(name, row.id, version).first<{ data: string }>();
+    if (!rev) return c.json({ error: "not_found" }, 404);
+    await c.env.DB.prepare(
+      `UPDATE ${name} SET draft_json = ?, updated_at = unixepoch() WHERE id = ?`,
+    ).bind(rev.data, row.id).run();
     return c.json(merged((await fetchRow(c, name, row.id))!));
   });
 
