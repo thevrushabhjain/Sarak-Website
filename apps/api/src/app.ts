@@ -3,13 +3,17 @@ import { authRoutes } from "./routes/auth";
 import { contentAdminRoutes } from "./routes/content-admin";
 import { usersAdminRoutes } from "./routes/users-admin";
 import { formsAdminRoutes } from "./routes/forms-admin";
-import { contentRoutes } from "./routes/content";
 import { mediaRoutes } from "./routes/media";
+import { contentRoutes } from "./routes/content";
+import { submissionsPublicRoutes } from "./routes/submissions-public";
 
 export type Bindings = {
   DB: D1Database;
   MEDIA: R2Bucket;
   SARAK_BOOTSTRAP_TOKEN?: string;
+  // Cloudflare Turnstile server secret; when absent the public submission
+  // endpoints skip bot verification entirely (dev/test default).
+  TURNSTILE_SECRET?: string;
 };
 
 export function createApp(_env: Bindings) {
@@ -24,5 +28,6 @@ export function createApp(_env: Bindings) {
   app.route("/admin/users", usersAdminRoutes());
   app.route("/admin/forms", formsAdminRoutes());
   app.route("/api", contentRoutes());
+  app.route("/api", submissionsPublicRoutes());
   return app;
 }
