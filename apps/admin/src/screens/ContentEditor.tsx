@@ -14,8 +14,8 @@ import {
   View,
 } from "react-native";
 
+import { ApiError } from "../api";
 import {
-  ApiError,
   COLLECTIONS,
   createContent,
   getContent,
@@ -56,18 +56,8 @@ function describe(err: unknown): string {
   }
 }
 
-function formatTimestamp(unixSeconds: number): string {
-  const date = new Date(unixSeconds * 1000);
-  return Number.isFinite(date.getTime())
-    ? date.toLocaleString(undefined, {
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        month: "short",
-        year: "numeric",
-      })
-    : "—";
-}
+
+import { formatTimestamp } from "./format";
 
 export function ContentEditor({
   name,

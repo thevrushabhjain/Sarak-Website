@@ -77,6 +77,8 @@ export function LabeledInput({
   editable = true,
   hint,
   error,
+  placeholder,
+  autoCapitalize,
 }: {
   label: string;
   value: string;
@@ -85,6 +87,8 @@ export function LabeledInput({
   editable?: boolean;
   hint?: string;
   error?: string | null;
+  placeholder?: string;
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
 }) {
   return (
     <View style={fieldStyles.wrap}>
@@ -95,7 +99,9 @@ export function LabeledInput({
         editable={editable}
         multiline={multiline}
         numberOfLines={multiline ? 4 : 1}
+        placeholder={placeholder}
         placeholderTextColor={theme.border}
+        autoCapitalize={autoCapitalize}
         style={[
           fieldStyles.input,
           multiline && fieldStyles.inputMultiline,

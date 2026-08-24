@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
+import { FormsScreen } from "./FormsScreen";
+import { InboxScreen } from "./InboxScreen";
+import { MediaScreen } from "./MediaScreen";
+import { UsersScreen } from "./UsersScreen";
+
 import { ContentScreen } from "./ContentScreen";
 
 import type { User } from "../config";
@@ -51,6 +56,14 @@ export function HomeScreen({
       <View style={styles.content}>
         {activeTab === "Content" ? (
           <ContentScreen />
+        ) : activeTab === "Media" ? (
+          <MediaScreen />
+        ) : activeTab === "Forms" ? (
+          <FormsScreen />
+        ) : activeTab === "Inbox" ? (
+          <InboxScreen user={user} />
+        ) : activeTab === "Users" ? (
+          <UsersScreen currentUserId={user.id} />
         ) : (
           <>
             <Text style={styles.placeholderTitle}>{activeTab}</Text>

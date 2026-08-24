@@ -4,8 +4,8 @@
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
+import { ApiError } from "../api";
 import {
-  ApiError,
   COLLECTIONS,
   listContent,
   type CollectionName,

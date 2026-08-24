@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 
 import type { User } from "./src/config";
-import { setUnauthorizedHandler } from "./src/content";
+import { setUnauthorizedHandler } from "./src/api";
 import { HomeScreen } from "./src/screens/HomeScreen";
 import { LoginScreen } from "./src/screens/LoginScreen";
 
