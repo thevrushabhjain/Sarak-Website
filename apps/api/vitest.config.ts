@@ -21,6 +21,8 @@ export default defineWorkersConfig(async () => {
           // Auth flows are sequential and stateful (bootstrap -> login -> recover);
           // default per-test storage isolation resets D1 between tests.
           isolatedStorage: false,
+          // One worker: strict ordering, shared-state races impossible
+          singleWorker: true,
           // Tests must never share storage with the dev server or prior runs
           persistState: false,
           wrangler: { configPath: "./wrangler.test.jsonc" },
