@@ -8,7 +8,8 @@ declare module "cloudflare:test" {
 }
 
 await applyD1Migrations(env.DB, env.TEST_MIGRATIONS);
-// Cross-run poison control: persistent local D1 keeps rate-limit/session rows
-// between `pnpm test` invocations, tripping the 10-per-account window.
-await env.DB.prepare("DELETE FROM login_attempts").run();
-await env.DB.prepare("DELETE FROM sessions").run();
+// Deterministic slate: persistent local D1 survives across runs/files, so
+// every spec starts from the same known-empty auth/content state.
+for (const t of ["submission_attempts","submissions","form_versions","forms","revisions","login_attempts","sessions","recovery_codes","users","media"]) {
+  await env.DB.prepare(`DELETE FROM ${t}`).run();
+}

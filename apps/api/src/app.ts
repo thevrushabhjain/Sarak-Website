@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { authRoutes } from "./routes/auth";
 import { contentAdminRoutes } from "./routes/content-admin";
+import { usersAdminRoutes } from "./routes/users-admin";
 import { contentRoutes } from "./routes/content";
 import { mediaRoutes } from "./routes/media";
 
@@ -19,6 +20,7 @@ export function createApp(_env: Bindings) {
   app.route("/admin/media", mediaRoutes());
   app.route("/admin/content", contentAdminRoutes());
   app.route("/media", mediaRoutes());
+  app.route("/admin/users", usersAdminRoutes());
   app.route("/api", contentRoutes());
   return app;
 }

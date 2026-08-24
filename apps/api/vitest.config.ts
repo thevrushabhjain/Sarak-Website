@@ -13,13 +13,17 @@ export default defineWorkersConfig(async () => {
     test: {
     // Shared D1 across spec files requires sequential execution
     fileParallelism: false,
+          // One worker: strict ordering, shared-state races impossible
+          singleWorker: true,
       setupFiles: ["./test/apply-migrations.ts"],
       poolOptions: {
         workers: {
           // Auth flows are sequential and stateful (bootstrap -> login -> recover);
           // default per-test storage isolation resets D1 between tests.
           isolatedStorage: false,
-          wrangler: { configPath: "./wrangler.jsonc" },
+          // Tests must never share storage with the dev server or prior runs
+          persistState: false,
+          wrangler: { configPath: "./wrangler.test.jsonc" },
           miniflare: {
             bindings: {
               TEST_MIGRATIONS: migrations,

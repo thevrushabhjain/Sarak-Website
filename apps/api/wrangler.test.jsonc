@@ -1,0 +1,9 @@
+{
+  "name": "sarak-api-test",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-08-01",
+  "d1_databases": [
+    { "binding": "DB", "database_name": "sarak-test", "database_id": "test-isolated" }
+  ],
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "sarak-media-test" }]
+}
