@@ -21,7 +21,8 @@ describe("public collections", () => {
   it("returns published news ordered by sort", async () => {
     // Delete-before-insert keeps this seed idempotent across shared-storage
     // reruns (news.slug is UNIQUE and file storage is not isolated).
-    await env.DB.prepare(`DELETE FROM news WHERE id IN ('n1','n2','n3')`).run();
+    // Wipe the whole table: other specs publish news rows (shared storage).
+    await env.DB.prepare(`DELETE FROM news`).run();
     await env.DB.prepare(
       `INSERT INTO news (id,slug,title,status,sort) VALUES
        ('n2','news-second','News Second','published',20),
