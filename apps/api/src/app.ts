@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import { authRoutes } from "./routes/auth";
 import { contentAdminRoutes } from "./routes/content-admin";
 import { usersAdminRoutes } from "./routes/users-admin";
@@ -17,8 +18,23 @@ export type Bindings = {
   TURNSTILE_SECRET?: string;
 };
 
+// Origins allowed to call the API with credentials: local Expo web dev and
+// the admin portal (production + wrangler Pages preview subdomains).
+const ALLOWED_ORIGIN =
+  /^(http:\/\/localhost:8081|https:\/\/([a-z0-9-]+\.)?sarak-admin\.pages\.dev)$/;
+
 export function createApp(_env: Bindings) {
   const app = new Hono<{ Bindings: Bindings }>();
+  // Must run before every route so OPTIONS preflights get a 204 even where
+  // no handler matches, and credentialed responses carry ACAO on /admin + /api.
+  app.use(
+    "*",
+    cors({
+      origin: (origin) => (ALLOWED_ORIGIN.test(origin) ? origin : null),
+      credentials: true,
+      allowHeaders: ["content-type", "cookie"],
+    }),
+  );
   app.get("/healthz", (c) => c.json({ ok: true }));
   app.route("/admin/auth", authRoutes());
   // GET is intentionally unguarded on both mounts; POST /admin/media is
