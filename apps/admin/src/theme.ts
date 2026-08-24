@@ -8,6 +8,8 @@ export const theme = {
   text: "#f1f5f9",
   textDim: "#94a3b8",
   accent: "#38bdf8",
+  success: "#4ade80",
+  warn: "#fbbf24",
   danger: "#f87171",
 };
 

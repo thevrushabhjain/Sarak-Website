@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
+import { ContentScreen } from "./ContentScreen";
+
 import type { User } from "../config";
 import { theme } from "../theme";
 
-// Placeholder sections until Tasks 2-9 fill them in.
+// Placeholder sections until Tasks 3-9 fill them in.
 const TABS = ["Dashboard", "Content", "Media", "Forms", "Inbox"] as const;
 type Tab = (typeof TABS)[number] | "Users";
 
@@ -47,10 +49,16 @@ export function HomeScreen({
       </ScrollView>
 
       <View style={styles.content}>
-        <Text style={styles.placeholderTitle}>{activeTab}</Text>
-        <Text style={styles.placeholderBody}>
-          This section arrives with the next portal tasks.
-        </Text>
+        {activeTab === "Content" ? (
+          <ContentScreen />
+        ) : (
+          <>
+            <Text style={styles.placeholderTitle}>{activeTab}</Text>
+            <Text style={styles.placeholderBody}>
+              This section arrives with a later portal task.
+            </Text>
+          </>
+        )}
       </View>
     </View>
   );
