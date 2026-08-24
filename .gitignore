@@ -10,3 +10,4 @@ sarak-admin/
 sdd-*.sh
 apps/api/dist/
 .dev.vars
+.prod-bootstrap-token.txt

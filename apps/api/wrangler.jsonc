@@ -3,7 +3,7 @@
   "main": "src/index.ts",
   "compatibility_date": "2025-08-01",
   "d1_databases": [
-    { "binding": "DB", "database_name": "sarak", "database_id": "placeholder-local" }
+    { "binding": "DB", "id": "17e1a866-616e-43cd-b11d-e593960b418d", "database_name": "sarak", "database_id": "17e1a866-616e-43cd-b11d-e593960b418d" }
   ],
   "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "sarak-media" }]
 }
