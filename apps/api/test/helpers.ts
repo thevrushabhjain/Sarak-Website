@@ -16,6 +16,9 @@ export async function ensureOwnerCookie(email = "owner@sarak.org"): Promise<stri
   await env.DB.prepare(
     "DELETE FROM sessions WHERE user_id IN (SELECT id FROM users WHERE email = ?)",
   ).bind(email).run();
+  // auth.spec's rate-limit test poisons this account for the rest of the run;
+  // test-only hygiene, production limiter untouched.
+  await env.DB.prepare("DELETE FROM login_attempts WHERE email_norm = ?").bind(email).run();
 
   const login = await SELF.fetch("https://example.com/admin/auth/login", {
     method: "POST",
