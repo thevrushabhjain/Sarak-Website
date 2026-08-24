@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "Sarak Admin",
+    "slug": "sarak-admin",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "scheme": "sarak-admin",
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "themeColor": "#111827"
+    }
+  }
+}
