@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { SELF, env } from "cloudflare:test";
+import { ensureOwnerCookie } from "./helpers";
 import { hashPassword } from "../src/lib/crypto";
 
 // The owner's password depends on suite order in shared-storage runs:
@@ -127,7 +128,7 @@ describe("users admin access control", () => {
 describe("owner account management", () => {
   it("creates an account and enforces email + role validation", async () => {
     await purgeFixtures();
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     const created = await SELF.fetch("https://example.com/admin/users", {
       method: "POST",
       headers: H(cookie),
@@ -156,7 +157,7 @@ describe("owner account management", () => {
   });
 
   it("lists all accounts with id, email, role and disabled_at", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     const res = await SELF.fetch("https://example.com/admin/users", { headers: H(cookie) });
     expect(res.status).toBe(200);
     const rows = await res.json<any[]>();
@@ -172,7 +173,7 @@ describe("owner account management", () => {
   });
 
   it("refuses to disable self and rejects unknown ids", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     const me = await SELF.fetch("https://example.com/admin/auth/me", { headers: H(cookie) });
     const selfId = (await me.json<any>()).id;
 
@@ -194,7 +195,7 @@ describe("owner account management", () => {
 
   it("disables, revokes mid-use, re-enables, then reset-password kills sessions", async () => {
     await purgeFixtures();
-    const ownerCookie = await sessionCookie();
+    const ownerCookie = await ensureOwnerCookie();
 
     // Create a fresh editor through the API under test.
     const created = await SELF.fetch("https://example.com/admin/users", {

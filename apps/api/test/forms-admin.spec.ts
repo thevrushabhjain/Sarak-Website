@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { SELF, env } from "cloudflare:test";
+import { ensureOwnerCookie } from "./helpers";
 import { hashPassword } from "../src/lib/crypto";
 
 // Same fallback-bootstrap pattern as users-admin.spec: the owner password
@@ -147,7 +148,7 @@ describe("forms admin access control", () => {
 
 describe("form schema validation", () => {
   it("enforces the full validation matrix on create", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     const cases: Array<[Record<string, unknown>, string]> = [
       [{ name: "FBT-Bad", fields: "nope" }, "fields_invalid"],
       [{ name: "FBT-Bad", fields: [] }, "fields_empty"],
@@ -226,7 +227,7 @@ describe("form schema validation", () => {
   });
 
   it("accepts boundaries: 1..50 fields, 1..20 options, every type, consent bare", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     const consentOnly = await createForm(cookie, {
       name: "FBT-ConsentOnly",
       fields: [{ type: "consent", label: "I agree", key: "agree" }],
@@ -257,7 +258,7 @@ describe("form schema validation", () => {
   });
 
   it("rejects unknown program references", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     const res = await createForm(cookie, {
       name: "FBT-NoProgram",
       program_id: "prog-does-not-exist",
@@ -270,7 +271,7 @@ describe("form schema validation", () => {
 
 describe("form lifecycle", () => {
   it("creates, reads, patches drafts across programs", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     const created = await createForm(cookie, {
       name: "FBT-Lifecycle",
       program_id: "prog-forms-a",
@@ -325,7 +326,7 @@ describe("form lifecycle", () => {
   });
 
   it("publishes frozen numbered versions and lists them newest-first", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     const created = await createForm(cookie, {
       name: "FBT-Publish",
       fields: RICH_FIELDS,
@@ -367,7 +368,7 @@ describe("form lifecycle", () => {
   });
 
   it("rejects field edits after publish until republished, name still updates", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     const created = await createForm(cookie, {
       name: "FBT-EditLock",
       fields: RICH_FIELDS,
@@ -422,7 +423,7 @@ describe("form lifecycle", () => {
 
 describe("form trash semantics", () => {
   it("blocks trashing a form whose versions hold registrations, allows enquiries", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
 
     // Enquiries alone never block: publish a form, attach one enquiry.
     const free = await (
@@ -504,7 +505,7 @@ describe("form trash semantics", () => {
   });
 
   it("trashed forms drop out of the default list but match ?status=trashed", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     const form = await (
       await createForm(cookie, { name: "FBT-ListTrash", fields: RICH_FIELDS })
     ).json<any>();
@@ -532,7 +533,7 @@ describe("form trash semantics", () => {
 
 describe("forms admin misc", () => {
   it("404s every route for unknown ids", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     for (const res of [
       await SELF.fetch("https://example.com/admin/forms/no-such-form", { headers: H(cookie) }),
       await SELF.fetch("https://example.com/admin/forms/no-such-form", {
@@ -558,7 +559,7 @@ describe("forms admin misc", () => {
   });
 
   it("rejects malformed bodies and bad names", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     const noName = await createForm(cookie, { fields: RICH_FIELDS });
     expect(noName.status).toBe(400);
     const blankName = await createForm(cookie, { name: "   ", fields: RICH_FIELDS });

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { SELF, env } from "cloudflare:test";
+import { ensureOwnerCookie } from "./helpers";
 import { hashPassword } from "../src/lib/crypto";
 
 // The owner's password depends on suite order in shared-storage runs:
@@ -108,7 +109,7 @@ describe("content admin auth", () => {
 
 describe("content lifecycle", () => {
   it("creates a draft and returns the merged row (201)", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     await resetFixtures();
     const res = await SELF.fetch("https://example.com/admin/content/activities", {
       method: "POST",
@@ -144,7 +145,7 @@ describe("content lifecycle", () => {
   });
 
   it("rejects duplicate slugs with 409 slug_taken", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     const dup = await SELF.fetch("https://example.com/admin/content/activities", {
       method: "POST",
       headers: H(cookie),
@@ -155,7 +156,7 @@ describe("content lifecycle", () => {
   });
 
   it("GET list merges draft overlay, includes _status, excludes trashed by default", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     // Seed a published row with a pending draft overlay written via PATCH.
     await env.DB.prepare(
       `INSERT OR REPLACE INTO activities (id,slug,title,status) VALUES ('ca-act-1','ca-live-one','Live One','published')`,
@@ -193,7 +194,7 @@ describe("content lifecycle", () => {
   });
 
   it("PATCH blocks slug and unknown fields", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     const slugRes = await SELF.fetch("https://example.com/admin/content/activities/ca-act-1", {
       method: "PATCH",
       headers: H(cookie),
@@ -211,7 +212,7 @@ describe("content lifecycle", () => {
   });
 
   it("PATCH writes ONLY draft_json + updated_at — public read unchanged until publish", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     const before = await (
       await SELF.fetch("https://example.com/api/collections/activities")
     ).json<any[]>();
@@ -243,7 +244,7 @@ describe("content lifecycle", () => {
   });
 
   it("publish is blocked while published; unpublish removes from the public read", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     // ca-act-1 is published (with a pending draft overlay): direct publish → 409.
     const blocked = await SELF.fetch(
       "https://example.com/admin/content/activities/ca-act-1/publish",
@@ -265,7 +266,7 @@ describe("content lifecycle", () => {
   });
 
   it("publish applies the draft live atomically and writes revision v1 with the PRIOR state", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     const pubRes = await SELF.fetch(
       "https://example.com/admin/content/activities/ca-act-1/publish",
       { method: "POST", headers: H(cookie) },
@@ -299,7 +300,7 @@ describe("content lifecycle", () => {
   });
 
   it("second publish writes revision v2 (unpublish between edits)", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     const unpub = await SELF.fetch(
       "https://example.com/admin/content/activities/ca-act-1/unpublish",
       { method: "POST", headers: H(cookie) },
@@ -324,7 +325,7 @@ describe("content lifecycle", () => {
   });
 
   it("enforces the state machine on publish/unpublish", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     // Publish on published → 409 invalid_state.
     await env.DB.prepare(`UPDATE activities SET status='published' WHERE id='ca-act-1'`).run();
     const p1 = await SELF.fetch("https://example.com/admin/content/activities/ca-act-1/publish", {
@@ -345,7 +346,7 @@ describe("content lifecycle", () => {
   });
 
   it("trash hides from admin default, PATCH-on-trashed is blocked, restore returns prior state", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     // Deterministic precondition regardless of prior tests' ending state.
     await env.DB.prepare(
       `UPDATE activities SET status='published', prev_status=NULL WHERE id='ca-act-1'`,
@@ -412,7 +413,7 @@ describe("content lifecycle", () => {
   });
 
   it("works across collections (news) and allows editors", async () => {
-    const owner = await sessionCookie();
+    const owner = await ensureOwnerCookie();
     const ed = await editorCookie();
 
     // Owner creates a news draft; editor can read and publish it.
@@ -458,7 +459,7 @@ describe("content revisions", () => {
   // base columns ("Rev One"), v2 captures "Rev Two" written via PATCH
   // between publishes. Later tests in this block chain on that state.
   it("lists revisions newest-first (data omitted) and serves one parsed revision", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     await resetFixtures();
     await env.DB.prepare(
       `INSERT OR REPLACE INTO activities (id,slug,title,status) VALUES ('ca-act-2','ca-rev-live','Rev One','unpublished')`,
@@ -522,7 +523,7 @@ describe("content revisions", () => {
   });
 
   it("restore overlays a prior revision as draft; state and public read unchanged until publish", async () => {
-    const cookie = await sessionCookie(); // ca-act-2: v1=Rev One, v2=Rev Two, published
+    const cookie = await ensureOwnerCookie(); // ca-act-2: v1=Rev One, v2=Rev Two, published
     const res = await SELF.fetch(
       "https://example.com/admin/content/activities/ca-act-2/revisions/1/restore",
       { method: "POST", headers: H(cookie) },
@@ -565,7 +566,7 @@ describe("content revisions", () => {
   });
 
   it("blocks restore onto trashed targets and rejects missing records or collections", async () => {
-    const cookie = await sessionCookie(); // ca-act-2: three revisions after the last test's publish
+    const cookie = await ensureOwnerCookie(); // ca-act-2: three revisions after the last test's publish
     await env.DB.prepare(
       `UPDATE activities SET status='trashed', prev_status='published' WHERE id='ca-act-2'`,
     ).run();

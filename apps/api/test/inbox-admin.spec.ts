@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { SELF, env } from "cloudflare:test";
+import { ensureOwnerCookie } from "./helpers";
 import { hashPassword } from "../src/lib/crypto";
 
 async function ownerCookie(): Promise<string> {
@@ -67,8 +68,11 @@ describe("inboxes", () => {
     expect((await SELF.fetch("https://example.com/admin/inbox/enquiry")).status).toBe(401);
     expect((await SELF.fetch("https://example.com/admin/inbox/enquiry", { method: "DELETE" })).status).toBe(401);
 
+    // Isolate from any submissions other specs created earlier in the run.
+    await env.DB.prepare("DELETE FROM submissions").run();
+    await env.DB.prepare("DELETE FROM submission_attempts").run();
     await seedFixtureForm();
-    const owner = await ownerCookie();
+    const owner = await ensureOwnerCookie();
     await seedSubmission("registration", { unread: false });
     await seedSubmission("registration");
     await seedSubmission("registration");

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { SELF } from "cloudflare:test";
+import { SELF, env } from "cloudflare:test";
+import { ensureOwnerCookie } from "./helpers";
 
 // The owner's password depends on suite order in shared-storage runs:
 // auth.spec's recovery test resets it to NewPass!234, while a standalone
@@ -59,7 +60,7 @@ describe("media upload", () => {
   });
 
   it("stores png and serves it back", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     const fd = new FormData();
     fd.append("file", new Blob([pngBytes()], { type: "image/png" }), "photo.png");
     const up = await SELF.fetch("https://example.com/admin/media", {
@@ -76,7 +77,7 @@ describe("media upload", () => {
   });
 
   it("coerces non-string alt field instead of failing", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     const fd = new FormData();
     fd.append("file", new Blob([pngBytes()], { type: "image/png" }), "photo.png");
     // Odd input: alt arrives as a File, which must bind as "" not blow up D1.
@@ -91,7 +92,7 @@ describe("media upload", () => {
   });
 
   it("rejects svg masquerading as png", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     const svg = new TextEncoder().encode("<svg xmlns='http://www.w3.org/2000/svg'/>");
     const fd = new FormData();
     fd.append("file", new Blob([svg], { type: "image/svg+xml" }), "evil.png");
@@ -102,7 +103,7 @@ describe("media upload", () => {
   });
 
   it("rejects files over 10MB", async () => {
-    const cookie = await sessionCookie();
+    const cookie = await ensureOwnerCookie();
     const big = pngBytes(10 * 1024 * 1024 + 1);
     const fd = new FormData();
     fd.append("file", new Blob([big], { type: "image/png" }), "big.png");
