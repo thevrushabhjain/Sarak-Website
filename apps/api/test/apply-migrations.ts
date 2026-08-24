@@ -7,7 +7,16 @@ declare module "cloudflare:test" {
 	}
 }
 
-await applyD1Migrations(env.DB, env.TEST_MIGRATIONS);
+// Apply once per worker: with a single shared worker the setup file runs for
+// every spec file, and re-applying against the shared database throws
+// "table already exists" (d1_migrations bookkeeping does not survive
+// storage resets between files).
+const g = globalThis as typeof globalThis & { __sarakMigrated?: boolean };
+if (!g.__sarakMigrated) {
+	await applyD1Migrations(env.DB, env.TEST_MIGRATIONS);
+	g.__sarakMigrated = true;
+}
+
 // Deterministic slate: persistent local D1 survives across runs/files, so
 // every spec starts from the same known-empty auth/content state.
 for (const t of ["submission_attempts","submissions","form_versions","forms","revisions","login_attempts","sessions","recovery_codes","users","media"]) {
