@@ -95,9 +95,14 @@ export function authRoutes() {
     await c.env.DB.prepare(
       "INSERT INTO sessions (token_hash,user_id,expires_at) VALUES (?,?,unixepoch()+?)",
     ).bind(await authCrypto.sha256Hex(token), user.id, SESSION_TTL).run();
+    // SameSite=None is required for the admin portal on *.pages.dev: Lax
+    // cookies are never attached to cross-site fetches (pages.dev ->
+    // workers.dev), which would silently break every credentialed call.
+    // CSRF stays bounded: state-changing routes take JSON/multipart bodies
+    // that preflight against the strict CORS origin allowlist.
     c.header(
       "set-cookie",
-      `sarak_session=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${SESSION_TTL}`,
+      `sarak_session=${token}; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=${SESSION_TTL}`,
     );
     return c.json({ user: { id: user.id, email: norm, role: user.role } });
   });
@@ -109,7 +114,7 @@ export function authRoutes() {
       await c.env.DB.prepare("DELETE FROM sessions WHERE token_hash=?")
         .bind(await authCrypto.sha256Hex(m[1])).run();
     }
-    c.header("set-cookie", "sarak_session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0");
+    c.header("set-cookie", "sarak_session=; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0");
     return c.body(null, 204);
   });
 
